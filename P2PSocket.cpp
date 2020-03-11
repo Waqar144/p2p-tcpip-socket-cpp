@@ -2,8 +2,8 @@
 #include "P2PSocketException.hpp"
 
 #include <iostream>
-#include <stdio.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 
 P2PSocket::P2PSocket(std::string ip, int port, int maxPeers, bool debug)
@@ -43,29 +43,31 @@ P2PSocket::P2PSocket(std::string ip, int port, int maxPeers, bool debug)
         throw P2PSocketException("Failed to start listener");
     }
 
-    m_peers = new Peers(this);
-    m_events = new Events();
-    //init other props after impl
-    //m_events
+    m_peers = Peers(this);
+}
+
+P2PSocket::~P2PSocket()
+{
+    ::close(m_socket.resource());
 }
 
 Events *P2PSocket::events()
 {
-    return m_events;
+    return &m_events;
 }
 
 void P2PSocket::connect(std::string remotePeerAddress, int port)
 {
-    this->m_peers->connect(remotePeerAddress, port);
+    this->m_peers.connect(remotePeerAddress, port);
 }
 
 void P2PSocket::listen()
 {
     m_socket.setNonBlockingMode();
-    int remain = m_maxPeers - m_peers->count();
+    int remain = m_maxPeers - m_peers.count();
     if (remain > 0) {
         for (int i = 0; i <= remain; ++i) {
-            m_peers->accept();
+            m_peers.accept();
         }
     }
     m_socket.setBlockMode();
@@ -83,5 +85,5 @@ int P2PSocket::maxPeers() const
 
 Peers *P2PSocket::peers()
 {
-    return m_peers;
+    return &m_peers;
 }

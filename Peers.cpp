@@ -39,19 +39,17 @@ void Peers::accept()
     int num = m_count + 1;
     sockaddr_in addr;
     socklen_t len = sizeof(addr);
-    int peerSocket = ::accept(m_p2pSocket->socket().resource(), (sockaddr*)&addr, &len);
-//    char buffer[256] = {0};
+    int peerSocket = ::accept(m_p2pSocket->socket().resource(), (struct sockaddr*)&addr, &len);
     if (peerSocket > 0) {
         std::shared_ptr<Peer> peer = std::make_shared<Peer>(m_p2pSocket, SocketResource(peerSocket), num);
         peerIsConnected(peer);
-        char *hel = "HELLO BRO\r\n";
-        /*int valread = */::write(peerSocket, hel, sizeof(hel));
+        std::string hel = "HELLO \r\n";
+        /*int valread = */::write(peerSocket, hel.c_str(), hel.length());
     }
 }
 
 void Peers::connect(std::string remotePeerAddr, int port)
 {
-    //check port
     if (port < 0x3E8 || port > 0xFFFF) {
         std::cout << "Invalid remote peer port\n";
     }
@@ -102,26 +100,6 @@ PeersMessages Peers::read(int length/*, ?callable $failPeerCallback = null*/)
     }
 
     return messages;
-//    $messages = new PeersMessages();
-
-//    /** @var Peer $peer */
-//    foreach ($this->peers as $peerName => $peer) {
-//        try {
-//            $peerMsg = $peer->read($length);
-//            if (is_string($peerMsg) && strlen($peerMsg) > 0) {
-//                $messages->append(new PeersReadMessage($peer, $peerMsg));
-//            }
-//        } catch (PeerReadException $e) {
-//            if ($failPeerCallback) {
-//                call_user_func_array($failPeerCallback, [$peer]);
-//                continue;
-//            }
-
-//            throw $e;
-//        }
-//    }
-
-//    return $messages;
 }
 
 int Peers::broadcast(std::string message/*, ?callable $failPeerCallback = null*/)
@@ -132,23 +110,6 @@ int Peers::broadcast(std::string message/*, ?callable $failPeerCallback = null*/
         ++sent;
     }
     return sent;
-//    $sent = 0;
-//    /** @var Peer $peer */
-//    foreach ($this->peers as $peerName => $peer) {
-//        try {
-//            $peer->send($message);
-//            $sent++;
-//        } catch (PeerWriteException $e) {
-//            if ($failPeerCallback) {
-//                call_user_func_array($failPeerCallback, [$peer]);
-//                continue;
-//            }
-
-//            throw $e;
-//        }
-//    }
-
-//    return $sent;
 }
 
 void Peers::peerIsConnected(std::shared_ptr<Peer> peer)
@@ -167,7 +128,5 @@ void Peers::peerIsConnected(std::shared_ptr<Peer> peer)
 
     std::cout << "Peer added to list " << m_count << "\n";
 
-//    call event
-//    std::vector<Peer> params{peer};
     m_p2pSocket->events()->onPeerConnect()->trigger();
 }

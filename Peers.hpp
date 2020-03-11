@@ -10,6 +10,7 @@ class PeersMessages;
 
 class Peers {
     public:
+    Peers() = default;
     Peers(P2PSocket* p2pSocket);
     int count() const;
     std::map<std::string, std::shared_ptr<Peer>> all() const;

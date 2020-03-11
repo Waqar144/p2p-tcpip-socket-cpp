@@ -5,14 +5,19 @@
 #include <unistd.h>
 
 Peer::Peer(std::shared_ptr<P2PSocket> socket, SocketResource peer, int num) : m_master(socket), m_socket(peer) {
-    sockaddr_in address;
-    address.sin_addr.s_addr = ::inet_addr(m_ip.c_str());
-    address.sin_port = htons(m_port);
-    address.sin_family = AF_INET;
-    ::getpeername(peer.resource(), (sockaddr*)&address, (socklen_t*)sizeof(address));
-    m_port = address.sin_port;
-    m_ip = address.sin_addr.s_addr;
+    struct sockaddr_in address;
+    socklen_t len = sizeof(address);
+    int ret = ::getpeername(peer.resource(), (struct sockaddr*)&address, &len);
+    if (ret == -1)
+        throw ("New peer connection " + std::to_string(num) + " failed.");
+    m_port = ::ntohs(address.sin_port);
+    m_ip = ::inet_ntoa(address.sin_addr);
     m_connected = true;
+}
+
+Peer::~Peer()
+{
+    ::close(m_socket.resource());
 }
 
 std::string Peer::name() const {
@@ -23,7 +28,7 @@ std::string Peer::ip () const {
     return m_ip;
 }
 
-int Peer::port() const {
+uint16_t Peer::port() const {
     return m_port;
 }
 

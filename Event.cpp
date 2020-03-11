@@ -36,7 +36,5 @@ int Event::trigger()
         ++count;
     }
 
-    std::cout << "calling -> ";
-
     return count;
 }
