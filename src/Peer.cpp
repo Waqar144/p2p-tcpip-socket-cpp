@@ -84,4 +84,5 @@ void Peer::disconnect()
     ::close(m_socket.resource());
     m_connected = false;
     this->m_master->peers()->remove(this);
+    this->m_master->events()->onPeerDisconnect()->trigger();
 }
