@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     P2PSocket *sock;
 
     try {
-        sock = new P2PSocket("127.0.0.1", 6758, 5);
+        sock = new P2PSocket("127.0.0.1", 6758, 2);
     } catch(P2PSocketException &e) {
         std::cout << e.what() << std::endl;
     }
@@ -29,21 +29,23 @@ int main(int argc, char *argv[])
     int connected = 0;
     while (true) {
         sock->listen();
-        sleep(5);
+        sleep(4);
         for (auto port : knownPorts) {
             if (connected != total) {
                 sock->connect("127.0.0.1", port);
                 ++connected;
+                std::cout << "connected: " << connected << "\n";
             }
         }
 
         sleep(2);
 
         if (connected > 0) {
-            sock->peers()->broadcast("Broadcasting...");
+            int bytes = sock->peers()->broadcast("Broadcasting...");
+            std::cout << "Sent: " << bytes << " bytes\n";
         }
 
-        sleep(1);
+        sleep(2);
 
         auto msgs = sock->peers()->read().all();
         for (const auto &msg : msgs) {

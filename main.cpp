@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unistd.h>
+#include <signal.h>
 
 #include "P2PSocket.hpp"
 #include "P2PSocketException.hpp"
@@ -11,10 +12,10 @@ int main(int argc, char *argv[])
         6758,
     };
 
-    P2PSocket *sock;
+    std::unique_ptr<P2PSocket> sock = nullptr;
 
     try {
-        sock = new P2PSocket("127.0.0.1", 8890, 5);
+        sock = std::make_unique<P2PSocket>("127.0.0.1", 8890, 2);
     } catch(P2PSocketException &e) {
         std::cout << e.what() << std::endl;
     }
@@ -23,32 +24,35 @@ int main(int argc, char *argv[])
 
     int total = knownPorts.size();
     int connected = 0;
+    signal (SIGPIPE, SIG_IGN);
     while (true) {
+        std::cout << "itera\n";
         sock->listen();
+        std::cout << "sock->listen() done\n";
         sleep(4);
         for (auto port : knownPorts) {
-            if (connected != total) {
+            if (connected < total) {
                 sock->connect("127.0.0.1", port);
                 ++connected;
+                std::cout << "connected: " << connected << "\n";
             }
         }
 
         sleep(2);
 
         if (connected > 0) {
-            sock->peers()->broadcast("Broadcasting...");
+            int bytes = sock->peers()->broadcast("Broadcasting...");
+            std::cout << "Sent: " << bytes << " bytes\n";
         }
 
-        sleep(1);
+        sleep(2);
 
         auto msgs = sock->peers()->read().all();
         for (const auto &msg : msgs) {
             std::cout << "Message: " << msg.message() << "\n";
         }
-
+        std::cout << "iteration " << connected << "\n";
     }
-
-    delete sock;
 
     std::cout << "Done, exiting...\n";
     return 0;
