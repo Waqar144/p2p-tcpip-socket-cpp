@@ -44,7 +44,12 @@ SocketResource Peer::socket() const {
 
 void Peer::send(const std::string &message) const
 {
+#ifdef _WIN32
+    /*write can be problematic on windows, using send() here */
+    ::send(m_socket.resource(), message.c_str(), message.size(), 0);
+#else
     int ret = ::write(m_socket.resource(), message.c_str(), message.size());
+#endif
     if (ret == -1) {
         perror("write ");
         std::cout << "Failed to write\n";
@@ -55,10 +60,16 @@ std::string Peer::read(int length)
 {
     char buf[length];
     std::memset(buf, 0, sizeof buf);
+#ifdef _WIN32
+    /* TODO: This needs to be tested on windows to verify it works as expected */
+    m_socket.setNonBlockingMode();
+    int recv = ::recv(m_socket.resource(), buf, length, 0);
+    m_socket.setBlockMode();
+#else
     int recv = ::recv(m_socket.resource(), buf, length, MSG_DONTWAIT);
+#endif
     if (recv == -1) {
         perror("read ");
-        std::cout << "Failed to write\n";
         return "";
      } else if (recv == 0) {
         //Connection is no longer valid, remote has been disconnected
@@ -76,7 +87,7 @@ bool Peer::status() const
 
 void Peer::disconnect()
 {
-    auto shutdown = ::shutdown(m_socket.resource(), SHUT_RDWR);
+    int shutdown = ::shutdown(m_socket.resource(), SHUT_RDWR);
     if (shutdown == -1) {
         perror("shutdown ");
     }

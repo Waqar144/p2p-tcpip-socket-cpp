@@ -25,7 +25,7 @@ class Peers {
 
     private:
     std::shared_ptr<P2PSocket> m_p2pSocket;
-    int m_count;
     std::map<std::string, std::shared_ptr<Peer>> m_peers;
     std::map<std::string, std::vector<int>> m_ip2PeerMap;
+    int m_count;
 };
