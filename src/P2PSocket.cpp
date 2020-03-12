@@ -48,7 +48,8 @@ P2PSocket::P2PSocket(std::string ip, int port, int maxPeers, bool debug)
 
 P2PSocket::~P2PSocket()
 {
-    ::close(m_socket.resource());
+    SocketResource::close(m_socket.resource());
+    SocketResource::cleanUp();
 }
 
 Events *P2PSocket::events()

@@ -1,5 +1,8 @@
 #include "Peers.hpp"
 #include "P2PSocket.hpp"
+#include "peersmessages.h"
+
+#include <iostream>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -8,7 +11,6 @@
 #include <string.h>
 #include <set>
 #include <algorithm>
-#include "peersmessages.h"
 
 Peers::Peers(P2PSocket* p2pSocket)
     : m_p2pSocket(p2pSocket),
@@ -38,8 +40,12 @@ void Peers::accept()
 {
     int num = m_count + 1;
     sockaddr_in addr;
+#ifdef _WIN32
+    int len = sizeof(addr);
+#else
     socklen_t len = sizeof(addr);
-    int peerSocket = ::accept(m_p2pSocket->socket().resource(), (struct sockaddr*)&addr, &len);
+#endif
+    Socket peerSocket = ::accept(m_p2pSocket->socket().resource(), (struct sockaddr*)&addr, &len);
     if (peerSocket > 0) {
         std::shared_ptr<Peer> peer = std::make_shared<Peer>(m_p2pSocket, SocketResource(peerSocket), num);
         peerIsConnected(peer);
@@ -50,6 +56,7 @@ bool Peers::connect(const std::string &remotePeerAddr, uint16_t port)
 {
     if (port < 0x3E8 || port > 0xFFFF) {
         std::cout << "Invalid remote peer port\n";
+        return false;
     }
     auto socket = SocketResource::create();
 
@@ -100,7 +107,7 @@ PeersMessages Peers::read(int length/*, ?callable $failPeerCallback = null*/)
     return messages;
 }
 
-int Peers::broadcast(std::string message/*, ?callable $failPeerCallback = null*/)
+int Peers::broadcast(const std::string &message/*, ?callable $failPeerCallback = null*/)
 {
     int sent = 0;
     for (const auto &[_, peer] : m_peers) {

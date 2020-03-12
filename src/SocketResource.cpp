@@ -21,6 +21,21 @@ int SocketResource::cleanUp()
 #endif
 }
 
+int SocketResource::close(Socket sock)
+{
+    int status = N0_ERROR;
+
+    #ifdef _WIN32
+      status = shutdown(sock, SD_BOTH);
+      if (status == N0_ERROR) { status = closesocket(sock); }
+    #else
+      status = shutdown(sock, SHUT_RDWR);
+      if (status == N0_ERROR) { status = close(sock); }
+    #endif
+
+    return status;
+}
+
 bool SocketResource::setNonBlockingMode()
 {
 #ifdef _WIN32
@@ -61,6 +76,6 @@ SocketResource SocketResource::create()
     return SocketResource(sock);
 }
 
-int SocketResource::resource() const {
+Socket SocketResource::resource() const {
     return m_socket;
 }

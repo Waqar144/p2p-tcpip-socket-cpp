@@ -21,7 +21,7 @@ class Peers {
     void remove(Peer *peer);
 
     PeersMessages read(int length = 1024/*, ?callable $failPeerCallback = null*/);
-    int broadcast(std::string message/*, ?callable $failPeerCallback = null*/);
+    int broadcast(const std::string &message/*, ?callable $failPeerCallback = null*/);
 
     private:
     std::shared_ptr<P2PSocket> m_p2pSocket;
