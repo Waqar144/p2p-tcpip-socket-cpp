@@ -7,19 +7,21 @@ bool SocketResource::setNonBlockingMode()
     bool ret = true;
 
     const int flags = fcntl(m_sockFd, F_GETFL, 0);
-    ret = 0 == fcntl(m_sockFd, F_SETFL, O_NONBLOCK);
+    ret = 0 == fcntl(m_sockFd, F_SETFL, flags | O_NONBLOCK);
 
     return ret;
 }
+
 bool SocketResource::setBlockMode()
 {
     bool ret = true;
 
     const int flags = fcntl(m_sockFd, F_GETFL, 0);
-    ret = 0 == fcntl(m_sockFd, F_SETFL, flags & (~O_NONBLOCK));
+    ret = 0 == fcntl(m_sockFd, F_SETFL, flags & ~O_NONBLOCK);
 
     return ret;
 }
+
 SocketResource SocketResource::create(bool debug)
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -29,6 +31,7 @@ SocketResource SocketResource::create(bool debug)
     }
     return SocketResource(sockfd);
 }
+
 int SocketResource::resource() const {
     return m_sockFd;
 }
