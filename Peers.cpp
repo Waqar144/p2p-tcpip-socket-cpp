@@ -43,8 +43,6 @@ void Peers::accept()
     if (peerSocket > 0) {
         std::shared_ptr<Peer> peer = std::make_shared<Peer>(m_p2pSocket, SocketResource(peerSocket), num);
         peerIsConnected(peer);
-        std::string hel = "HELLO \r\n";
-        /*int valread = */::write(peerSocket, hel.c_str(), hel.length());
     }
 }
 
@@ -67,9 +65,6 @@ void Peers::connect(std::string remotePeerAddr, int port)
         perror("connect fail");
         std::cout << "Peer connection to " << remotePeerAddr << " on port " << port << " failed";
     }
-
-    std::string hello = "Hello from client";
-    ::send(socket.resource() , hello.c_str(), hello.length() , 0 );
 
     std::shared_ptr<Peer> peer = std::make_shared<Peer>(m_p2pSocket, SocketResource(socket), 0);
     peerIsConnected(peer);
