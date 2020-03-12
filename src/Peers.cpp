@@ -26,7 +26,7 @@ std::map<std::string, std::shared_ptr<Peer> > Peers::all() const
     return m_peers;
 }
 
-std::vector<int> Peers::ip2Peers(std::string ip) const
+std::vector<int> Peers::ip2Peers(const std::string &ip) const
 {
     auto retItr = m_ip2PeerMap.find(ip);
     if (retItr != m_ip2PeerMap.end())
@@ -46,7 +46,7 @@ void Peers::accept()
     }
 }
 
-void Peers::connect(std::string remotePeerAddr, int port)
+bool Peers::connect(const std::string &remotePeerAddr, uint16_t port)
 {
     if (port < 0x3E8 || port > 0xFFFF) {
         std::cout << "Invalid remote peer port\n";
@@ -59,15 +59,18 @@ void Peers::connect(std::string remotePeerAddr, int port)
 
     if (::inet_pton(AF_INET, remotePeerAddr.c_str(), &addr.sin_addr) <= 0) {
         std::cout << "Peers: Invalid IPv4 host address\n";
+        return false;
     }
 
     if (::connect(socket.resource(), (struct sockaddr*)&addr, sizeof(addr)) < 0) {
         perror("connect fail");
         std::cout << "Peer connection to " << remotePeerAddr << " on port " << port << " failed";
+        return false;
     }
 
     std::shared_ptr<Peer> peer = std::make_shared<Peer>(m_p2pSocket, SocketResource(socket), 0);
     peerIsConnected(peer);
+    return true;
 }
 
 void Peers::remove(Peer *peer)

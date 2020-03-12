@@ -17,7 +17,7 @@ public:
     uint16_t port() const;
     SocketResource socket() const;
 
-    void send(const std::string &message);
+    void send(const std::string &message) const;
     std::string read(int length = 1024);
 
     bool status() const;

@@ -40,7 +40,7 @@ SocketResource Peer::socket() const {
     return m_socket;
 }
 
-void Peer::send(const std::string &message)
+void Peer::send(const std::string &message) const
 {
     int ret = ::write(m_socket.resource(), message.c_str(), message.size());
     if (ret == -1) {
