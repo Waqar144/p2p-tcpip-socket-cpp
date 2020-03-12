@@ -3,11 +3,13 @@
 
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <iostream>
 
 #include <cstring>
 
 
-Peer::Peer(std::shared_ptr<P2PSocket> socket, SocketResource peer, int num) : m_master(socket), m_socket(peer) {
+Peer::Peer(std::shared_ptr<P2PSocket> socket, SocketResource peer, int num) : m_master(socket), m_socket(peer)
+{
     struct sockaddr_in address;
     socklen_t len = sizeof(address);
     int ret = ::getpeername(peer.resource(), (struct sockaddr*)&address, &len);
@@ -21,7 +23,7 @@ Peer::Peer(std::shared_ptr<P2PSocket> socket, SocketResource peer, int num) : m_
 
 Peer::~Peer()
 {
-    ::close(m_socket.resource());
+    SocketResource::close(m_socket.resource());
 }
 
 std::string Peer::name() const {
@@ -59,9 +61,10 @@ std::string Peer::read(int length)
         std::cout << "Failed to write\n";
         return "";
      } else if (recv == 0) {
-        std::cout << "Peer has disconnected" << __func__ << "\n";
+        //Connection is no longer valid, remote has been disconnected
         m_connected = false;
         this->m_master->peers()->remove(this);
+        this->m_master->events()->onPeerDisconnect()->trigger();
     }
     return buf;
 }
@@ -73,15 +76,12 @@ bool Peer::status() const
 
 void Peer::disconnect()
 {
-    auto shutdown = ::shutdown(m_socket.resource(), 2);
+    auto shutdown = ::shutdown(m_socket.resource(), SHUT_RDWR);
     if (shutdown == -1) {
         perror("shutdown ");
-        std::cout << "failed to shutdown\n";
     }
 
-    std::cout << "Disconnecting";
-
-    ::close(m_socket.resource());
+    //Don't call close here, it will be triggered automatically when object gets destroyed
     m_connected = false;
     this->m_master->peers()->remove(this);
     this->m_master->events()->onPeerDisconnect()->trigger();
