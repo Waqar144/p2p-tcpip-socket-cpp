@@ -1,6 +1,25 @@
 #include "SocketResource.hpp"
 
-SocketResource::SocketResource(int sockFd) : m_sockFd(sockFd) {}
+SocketResource::SocketResource(Socket sockFd) : m_sockFd(sockFd) {}
+
+int SocketResource::init()
+{
+#ifdef _WIN32
+    WSADATA wsaData;
+    return WSAStartup(MAKEWORD(2,2), &wsaData);
+#else
+    return N0_ERROR;
+#endif
+}
+
+int SocketResource::cleanUp()
+{
+#ifdef _WIN32
+    return WSACleanup();
+#else
+    return N0_ERROR;
+#endif
+}
 
 bool SocketResource::setNonBlockingMode()
 {
@@ -22,14 +41,19 @@ bool SocketResource::setBlockMode()
     return ret;
 }
 
-SocketResource SocketResource::create(bool debug)
+SocketResource SocketResource::create()
 {
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1)
-    {
-        return SocketResource(-1);
+    if (init() != N0_ERROR) {
+        cleanUp();
+        return SocketResource(INVALID_SOCKET);
     }
-    return SocketResource(sockfd);
+
+    Socket sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == INVALID_SOCKET)
+    {
+        return SocketResource(INVALID_SOCKET);
+    }
+    return SocketResource(sock);
 }
 
 int SocketResource::resource() const {
