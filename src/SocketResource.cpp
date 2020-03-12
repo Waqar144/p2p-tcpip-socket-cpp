@@ -1,6 +1,6 @@
 #include "SocketResource.hpp"
 
-SocketResource::SocketResource(Socket sockFd) : m_sockFd(sockFd) {}
+SocketResource::SocketResource(Socket sockFd) : m_socket(sockFd) {}
 
 int SocketResource::init()
 {
@@ -23,20 +23,25 @@ int SocketResource::cleanUp()
 
 bool SocketResource::setNonBlockingMode()
 {
-    bool ret = true;
-
-    const int flags = fcntl(m_sockFd, F_GETFL, 0);
-    ret = 0 == fcntl(m_sockFd, F_SETFL, flags | O_NONBLOCK);
+#ifdef _WIN32
+    u_long iMode = 1;
+    const bool ret = N0_ERROR == ioctlsocket(m_socket, FIONBIO, &iMode);
+#endif
+    const int flags = fcntl(m_socket, F_GETFL, 0);
+    const bool ret = N0_ERROR == fcntl(m_socket, F_SETFL, flags | O_NONBLOCK);
 
     return ret;
 }
 
 bool SocketResource::setBlockMode()
 {
-    bool ret = true;
+#ifdef _WIN32
+    u_long iMode = 0;
+    const bool ret = N0_ERROR == ioctlsocket(m_socket, FIONBIO, &iMode);
+#endif
 
-    const int flags = fcntl(m_sockFd, F_GETFL, 0);
-    ret = 0 == fcntl(m_sockFd, F_SETFL, flags & ~O_NONBLOCK);
+    const int flags = fcntl(m_socket, F_GETFL, 0);
+    const bool ret = N0_ERROR == fcntl(m_socket, F_SETFL, flags & ~O_NONBLOCK);
 
     return ret;
 }
@@ -48,7 +53,7 @@ SocketResource SocketResource::create()
         return SocketResource(INVALID_SOCKET);
     }
 
-    Socket sock = socket(AF_INET, SOCK_STREAM, 0);
+    Socket sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == INVALID_SOCKET)
     {
         return SocketResource(INVALID_SOCKET);
@@ -57,5 +62,5 @@ SocketResource SocketResource::create()
 }
 
 int SocketResource::resource() const {
-    return m_sockFd;
+    return m_socket;
 }

@@ -11,6 +11,7 @@
   /* Assume that any non-Windows platform uses POSIX-style sockets instead. */
 #include <sys/socket.h>
 #include <fcntl.h>
+#include <netinet/in.h>
 //  #include <arpa/inet.h>
 //  #include <netdb.h>  /* Needed for getaddrinfo() and freeaddrinfo() */
 //#include <unistd.h> /* Needed for close() */
@@ -25,7 +26,7 @@ using Socket = decltype(socket(0, 0, 0));
 class SocketResource
 {
 private:
-    Socket m_sockFd;
+    Socket m_socket;
 
 public:
     SocketResource(Socket sockFd = -1);
