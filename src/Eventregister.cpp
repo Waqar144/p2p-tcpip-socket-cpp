@@ -32,5 +32,11 @@ bool EventRegister::has(std::string event)
 
 void EventRegister::clear(std::shared_ptr<Event> event)
 {
-//    m_events.erase(std::remove(m_events.begin(), m_events.end(), event), m_events.end());
+    auto it = m_events.begin();
+    while (it != m_events.end()) {
+        if (it->second == event)
+            it = m_events.erase(it);
+        else
+            ++it;
+    }
 }
