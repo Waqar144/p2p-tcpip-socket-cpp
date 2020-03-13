@@ -60,14 +60,7 @@ std::string Peer::read(int length)
 {
     char buf[length];
     std::memset(buf, 0, sizeof buf);
-#ifdef _WIN32
-    /* TODO: This needs to be tested on windows to verify it works as expected */
-    m_socket.setNonBlockingMode();
-    int recv = ::recv(m_socket.resource(), buf, length, 0);
-    m_socket.setBlockMode();
-#else
     int recv = ::recv(m_socket.resource(), buf, length, MSG_DONTWAIT);
-#endif
     if (recv == -1) {
         perror("read ");
         return "";

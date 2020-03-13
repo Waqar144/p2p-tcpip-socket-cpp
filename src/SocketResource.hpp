@@ -15,9 +15,14 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 
-constexpr int N0_ERROR = 0;
-constexpr int INVALID_SOCKET = -1;
+#define N0_ERROR 0
+#define INVALID_SOCKET -1
 
+#endif
+
+// MSG_DONTWAIT is not available on some platforms, if it doesn't exist define it as 0
+#if !defined(MSG_DONTWAIT)
+#define MSG_DONTWAIT 0
 #endif
 
 using Socket = decltype(socket(0, 0, 0));
