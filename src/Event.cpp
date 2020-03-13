@@ -1,11 +1,9 @@
 #include "Event.hpp"
+#include <utility>
 #include "Eventregister.hpp"
-//Event::Event()
-//{
-//}
 
 Event::Event(EventRegister *_register, std::string name)
-    : m_eventRegister(_register), m_name{name}
+    : m_eventRegister(_register), m_name{std::move(name)}
 {
 }
 
@@ -19,7 +17,7 @@ std::shared_ptr<EventRegister> Event::eventRegister()
     return m_eventRegister;
 }
 
-Event Event::listen(std::function<void()> func)
+Event Event::listen(const std::function<void()>& func)
 {
     m_listeners.push_back(func);
     return *this;
@@ -31,7 +29,7 @@ int Event::trigger()
         return 0;
 
     int count = 0;
-    for (auto listener : m_listeners) {
+    for (const auto& listener : m_listeners) {
         listener();
         ++count;
     }

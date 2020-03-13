@@ -16,7 +16,7 @@ public:
     Event(EventRegister *_register, std::string name);
     std::string name() const;
     std::shared_ptr<EventRegister> eventRegister();
-    Event listen(std::function<void()> func);
+    Event listen(const std::function<void()>& func);
     int trigger();
 private:
     std::shared_ptr<EventRegister> m_eventRegister;

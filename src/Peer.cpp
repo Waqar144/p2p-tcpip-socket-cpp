@@ -6,9 +6,9 @@
 #include <iostream>
 
 #include <cstring>
+#include <utility> 
 
-
-Peer::Peer(std::shared_ptr<P2PSocket> socket, SocketResource peer, int num) : m_master(socket), m_socket(peer)
+Peer::Peer(std::shared_ptr<P2PSocket> socket, SocketResource peer, int num) : m_master(std::move(socket)), m_socket(peer)
 {
     struct sockaddr_in address;
     socklen_t len = sizeof(address);

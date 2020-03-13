@@ -1,10 +1,5 @@
 #include "Eventregister.hpp"
 
-EventRegister::EventRegister()
-{
-
-}
-
 void toLower(std::string &str)
 {
     std::transform(str.begin(), str.end(), str.begin(),
@@ -30,7 +25,7 @@ bool EventRegister::has(std::string event)
     return m_events.find(event) != m_events.end();
 }
 
-void EventRegister::clear(std::shared_ptr<Event> event)
+void EventRegister::clear(const std::shared_ptr<Event>& event)
 {
     auto it = m_events.begin();
     while (it != m_events.end()) {

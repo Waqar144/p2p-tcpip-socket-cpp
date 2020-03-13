@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 
-P2PSocket::P2PSocket(std::string ip, int port, int maxPeers, bool debug)
+P2PSocket::P2PSocket(const std::string& ip, int port, int maxPeers, bool debug)
     : m_debug(debug),
       m_maxPeers(maxPeers)
 {
@@ -57,7 +57,7 @@ Events *P2PSocket::events()
     return &m_events;
 }
 
-void P2PSocket::connect(std::string remotePeerAddress, int port)
+void P2PSocket::connect(const std::string& remotePeerAddress, int port)
 {
     this->m_peers.connect(remotePeerAddress, port);
 }

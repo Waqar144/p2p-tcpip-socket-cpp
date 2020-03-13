@@ -11,10 +11,10 @@ class Event;
 class EventRegister
 {
 public:
-    EventRegister();
+    EventRegister() = default;
     std::shared_ptr<Event> on(std::string event);
     bool has(std::string event);
-    void clear(std::shared_ptr<Event> event);
+    void clear(const std::shared_ptr<Event>& event);
 
 private:
     std::map<std::string, std::shared_ptr<Event>> m_events;

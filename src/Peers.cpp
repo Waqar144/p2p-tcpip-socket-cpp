@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <string>
 #include <arpa/inet.h>
-#include <string.h>
+#include <cstring>
 #include <set>
 #include <algorithm>
 
@@ -117,7 +117,7 @@ int Peers::broadcast(const std::string &message/*, ?callable $failPeerCallback =
     return sent;
 }
 
-void Peers::peerIsConnected(std::shared_ptr<Peer> peer)
+void Peers::peerIsConnected(const std::shared_ptr<Peer>& peer)
 {
     m_peers[peer->name()] = peer;
     ++m_count;

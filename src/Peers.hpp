@@ -17,7 +17,7 @@ class Peers {
     std::vector<int> ip2Peers(const std::string &ip) const;
     void accept();
     bool connect(const std::string &remotePeerAddr, uint16_t port);
-    void peerIsConnected(std::shared_ptr<Peer> peer);
+    void peerIsConnected(const std::shared_ptr<Peer>& peer);
     void remove(Peer *peer);
 
     PeersMessages read(int length = 1024/*, ?callable $failPeerCallback = null*/);
