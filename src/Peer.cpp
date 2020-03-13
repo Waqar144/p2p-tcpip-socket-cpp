@@ -42,7 +42,7 @@ SocketResource Peer::socket() const {
     return m_socket;
 }
 
-void Peer::send(const std::string &message) const
+int Peer::send(const std::string &message) const
 {
 #ifdef _WIN32
     /*write can be problematic on windows, using send() here */
@@ -52,8 +52,9 @@ void Peer::send(const std::string &message) const
 #endif
     if (ret == -1) {
         perror("write ");
-        std::cout << "Failed to write\n";
     }
+
+    return ret;
 }
 
 std::string Peer::read(int length)

@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "P2PSocket.hpp"
 #include "SocketResource.hpp"
 #include <string>
 #include <memory>
@@ -17,7 +16,7 @@ public:
     uint16_t port() const;
     SocketResource socket() const;
 
-    void send(const std::string &message) const;
+    int send(const std::string &message) const;
     std::string read(int length = 1024);
 
     bool status() const;

@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     std::unique_ptr<P2PSocket> sock = nullptr;
 
     try {
-        sock = std::make_unique<P2PSocket>("127.0.0.1", 8890, 2);
+        sock = std::make_unique<P2PSocket>("192.168.100.16", 8890, 2);
     } catch(P2PSocketException &e) {
         std::cout << e.what() << std::endl;
     }
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         sleep(4);
         for (auto port : knownPorts) {
             if (connected < total) {
-                sock->connect("127.0.0.1", port);
+                sock->connect("104.248.90.54", 8081);
                 ++connected;
                 std::cout << "connected: " << connected << "\n";
             }

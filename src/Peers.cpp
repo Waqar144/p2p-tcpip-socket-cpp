@@ -1,16 +1,16 @@
 #include "Peers.hpp"
 #include "P2PSocket.hpp"
 #include "peersmessages.h"
+#include "SocketResource.hpp"
 
 #include <iostream>
-#include <netinet/in.h>
-#include <sys/socket.h>
 #include <unistd.h>
 #include <string>
-#include <arpa/inet.h>
-#include <cstring>
-#include <set>
 #include <algorithm>
+
+#ifndef _WIN32
+    #include <arpa/inet.h>
+#endif
 
 Peers::Peers(P2PSocket* p2pSocket)
     : m_p2pSocket(p2pSocket),
@@ -93,9 +93,11 @@ void Peers::remove(Peer *peer)
     }
 }
 
-PeersMessages Peers::read(int length/*, ?callable $failPeerCallback = null*/)
+PeersMessages Peers::read(int length, std::function<void(std::shared_ptr<Peer>)> callback)
 {
     PeersMessages messages;
+    //TODO: Move this in the appropriate place once exceptions/error handling is in place
+    (void)callback;
     for (const auto& [_, peer] : m_peers) {
         (void)_;
         std::string msg = peer->read(length);
@@ -107,11 +109,13 @@ PeersMessages Peers::read(int length/*, ?callable $failPeerCallback = null*/)
     return messages;
 }
 
-int Peers::broadcast(const std::string &message/*, ?callable $failPeerCallback = null*/)
+int Peers::broadcast(const std::string &message, std::function<void(std::shared_ptr<Peer>)> callback)
 {
     int sent = 0;
     for (const auto &[_, peer] : m_peers) {
-        peer->send(message);
+        if (peer->send(message) == -1) {
+            callback(peer);
+        }
         ++sent;
     }
     return sent;

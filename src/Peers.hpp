@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Peer.hpp"
 #include <vector>
 #include <map>
 #include <memory>
+#include <functional>
 
 class P2PSocket;
+class Peer;
 class PeersMessages;
 
 class Peers {
@@ -20,8 +21,8 @@ class Peers {
     void peerIsConnected(const std::shared_ptr<Peer>& peer);
     void remove(Peer *peer);
 
-    PeersMessages read(int length = 1024/*, ?callable $failPeerCallback = null*/);
-    int broadcast(const std::string &message/*, ?callable $failPeerCallback = null*/);
+    PeersMessages read(int length = 1024, std::function<void(std::shared_ptr<Peer>)> callback = nullptr);
+    int broadcast(const std::string &message, std::function<void(std::shared_ptr<Peer>)> callback = nullptr);
 
     private:
     std::shared_ptr<P2PSocket> m_p2pSocket;
