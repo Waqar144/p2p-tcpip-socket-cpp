@@ -136,7 +136,5 @@ void Peers::peerIsConnected(const std::shared_ptr<Peer>& peer)
 
     m_ip2PeerMap[peer->ip()] = ipPeers;
 
-    std::cout << "Peer added to list " << m_count << "\n";
-
     m_p2pSocket->events()->onPeerConnect()->trigger(peer.get());
 }

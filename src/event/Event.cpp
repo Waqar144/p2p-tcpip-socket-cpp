@@ -1,7 +1,7 @@
 #include "Event.hpp"
 #include <utility>
 #include "Eventregister.hpp"
-#include "Peer.hpp"
+#include "../Peer.hpp"
 
 Event::Event(EventRegister *_register, std::string name)
     : m_eventRegister(_register),

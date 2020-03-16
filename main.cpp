@@ -3,7 +3,7 @@
 #include <signal.h>
 
 #include "P2PSocket.hpp"
-#include "P2PSocketException.hpp"
+#include "exceptions/P2PSocketException.hpp"
 #include "peersmessages.h"
 
 int main(int argc, char *argv[])
