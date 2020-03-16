@@ -21,7 +21,6 @@ std::shared_ptr<Event> EventRegister::on(std::string event)
 bool EventRegister::has(std::string event)
 {
     toLower(event);
-
     return m_events.find(event) != m_events.end();
 }
 

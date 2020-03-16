@@ -1,4 +1,5 @@
 #include "Peers.hpp"
+#include "Peer.hpp"
 #include "P2PSocket.hpp"
 #include "peersmessages.h"
 #include "SocketResource.hpp"
@@ -137,5 +138,5 @@ void Peers::peerIsConnected(const std::shared_ptr<Peer>& peer)
 
     std::cout << "Peer added to list " << m_count << "\n";
 
-    m_p2pSocket->events()->onPeerConnect()->trigger();
+    m_p2pSocket->events()->onPeerConnect()->trigger(peer.get());
 }

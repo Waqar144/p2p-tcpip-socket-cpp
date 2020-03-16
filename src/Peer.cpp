@@ -69,7 +69,7 @@ std::string Peer::read(int length)
         //Connection is no longer valid, remote has been disconnected
         m_connected = false;
         this->m_master->peers()->remove(this);
-        this->m_master->events()->onPeerDisconnect()->trigger();
+        this->m_master->events()->onPeerDisconnect()->trigger(this);
     }
     return buf;
 }
@@ -89,5 +89,5 @@ void Peer::disconnect()
     //Don't call close here, it will be triggered automatically when object gets destroyed
     m_connected = false;
     this->m_master->peers()->remove(this);
-    this->m_master->events()->onPeerDisconnect()->trigger();
+    this->m_master->events()->onPeerDisconnect()->trigger(this);
 }

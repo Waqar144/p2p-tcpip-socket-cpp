@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         std::cout << e.what() << std::endl;
     }
 
-    sock->events()->onPeerConnect()->listen([](){ std::cout << "A new peer connected"<< std::endl;; });
+    sock->events()->onPeerConnect()->listen([](auto &&){ std::cout << "A new peer connected"<< std::endl;; });
 
     int total = knownPorts.size();
     int connected = 0;
