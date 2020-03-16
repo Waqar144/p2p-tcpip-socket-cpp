@@ -71,7 +71,8 @@ void P2PSocket::listen()
     int remain = m_maxPeers - m_peers.count();
     if (remain > 0) {
         for (int i = 0; i <= remain; ++i) {
-            m_peers.accept();
+            if (!m_peers.accept())
+                throw P2PSocketException(std::string{"Accept failure "} + std::strerror(errno));
         }
     }
     m_socket.setBlockMode();

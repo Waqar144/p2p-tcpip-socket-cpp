@@ -1,5 +1,6 @@
 #include "Peers.hpp"
 #include "Peer.hpp"
+#include "exceptions/peerexception.h"
 #include "P2PSocket.hpp"
 #include "peersmessages.h"
 #include "SocketResource.hpp"
@@ -37,7 +38,7 @@ std::vector<int> Peers::ip2Peers(const std::string &ip) const
     return {};
 }
 
-void Peers::accept()
+bool Peers::accept()
 {
     int num = m_count + 1;
     sockaddr_in addr;
@@ -50,7 +51,10 @@ void Peers::accept()
     if (peerSocket > 0) {
         std::shared_ptr<Peer> peer = std::make_shared<Peer>(m_p2pSocket, SocketResource(peerSocket), num);
         peerIsConnected(peer);
+        return true;
+
     }
+    return false;
 }
 
 bool Peers::connect(const std::string &remotePeerAddr, uint16_t port)
@@ -101,9 +105,17 @@ PeersMessages Peers::read(int length, std::function<void(std::shared_ptr<Peer>)>
     (void)callback;
     for (const auto& [_, peer] : m_peers) {
         (void)_;
-        std::string msg = peer->read(length);
-        if (msg.length() > 0)
-            messages.append(PeersReadMessage(peer, msg));
+        try {
+            std::string msg = peer->read(length);
+            if (msg.length() > 0)
+                messages.append(PeersReadMessage(peer, msg));
+        } catch(const PeerException &e) {
+            if (callback != nullptr) {
+                callback(peer);
+                continue;
+            }
+            throw e;
+        }
 
     }
 
@@ -115,9 +127,18 @@ int Peers::broadcast(const std::string &message, std::function<void(std::shared_
     int sent = 0;
     for (const auto &[_, peer] : m_peers) {
         if (peer->send(message) == -1) {
-            callback(peer);
+            try {
+                peer->send(message);
+                ++sent;
+            } catch(const PeerException &e){
+                std::cout << e.what();
+                if (callback != nullptr) {
+                    callback(peer);
+                    continue;
+                }
+                throw e;
+            }
         }
-        ++sent;
     }
     return sent;
 }

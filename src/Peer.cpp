@@ -1,5 +1,6 @@
 #include "Peer.hpp"
 #include "P2PSocket.hpp"
+#include "exceptions/peerexception.h"
 
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -11,13 +12,14 @@
 Peer::Peer(std::shared_ptr<P2PSocket> socket, SocketResource peer, int num) : m_master(std::move(socket)), m_socket(peer)
 {
     struct sockaddr_in address;
+    std::memset(&address, 0, sizeof address);
     socklen_t len = sizeof(address);
     int ret = ::getpeername(peer.resource(), (struct sockaddr*)&address, &len);
     if (ret == -1)
-        std::cout<< "New peer connection " + std::to_string(num) + " failed.";
+        std::cout<< "New peer connection " + std::to_string(num) + " failed." << std::endl;
     m_port = ::ntohs(address.sin_port);
     m_ip = ::inet_ntoa(address.sin_addr);
-    m_name = m_ip + std::to_string(m_port);
+    m_name = m_ip + ":" + std::to_string(m_port);
     m_connected = true;
 }
 
@@ -51,7 +53,7 @@ int Peer::send(const std::string &message) const
     int ret = ::write(m_socket.resource(), message.c_str(), message.size());
 #endif
     if (ret == -1) {
-        perror("write ");
+        throw PeerException(std::string{"Failed to write to peer "} + m_name + " " + std::strerror(errno) + "\n");
     }
 
     return ret;
@@ -63,8 +65,7 @@ std::string Peer::read(int length)
     std::memset(buf, 0, sizeof buf);
     int recv = ::recv(m_socket.resource(), buf, length, MSG_DONTWAIT);
     if (recv == -1) {
-        perror("read ");
-        return "";
+        throw PeerException(std::string{"Failed to read peer "} + m_name + " " + std::strerror(errno) + "\n");
      } else if (recv == 0) {
         //Connection is no longer valid, remote has been disconnected
         m_connected = false;
@@ -83,7 +84,7 @@ void Peer::disconnect()
 {
     int shutdown = ::shutdown(m_socket.resource(), SHUT_RDWR);
     if (shutdown == -1) {
-        perror("shutdown ");
+        throw PeerException(std::string{"Failed to shutdown socket to peer "} + m_name + " " + std::strerror(errno) + "\n");
     }
 
     //Don't call close here, it will be triggered automatically when object gets destroyed

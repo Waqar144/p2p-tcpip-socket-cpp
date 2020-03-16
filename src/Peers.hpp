@@ -16,7 +16,7 @@ class Peers {
     int count() const;
     std::map<std::string, std::shared_ptr<Peer>> all() const;
     std::vector<int> ip2Peers(const std::string &ip) const;
-    void accept();
+    bool accept();
     bool connect(const std::string &remotePeerAddr, uint16_t port);
     void peerIsConnected(const std::shared_ptr<Peer>& peer);
     void remove(Peer *peer);

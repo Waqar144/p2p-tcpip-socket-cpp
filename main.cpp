@@ -4,6 +4,7 @@
 
 #include "P2PSocket.hpp"
 #include "exceptions/P2PSocketException.hpp"
+#include "exceptions/peerexception.h"
 #include "peersmessages.h"
 
 int main(int argc, char *argv[])
@@ -16,18 +17,26 @@ int main(int argc, char *argv[])
 
     try {
         sock = std::make_unique<P2PSocket>("127.0.0.1", 8890, 2);
-    } catch(P2PSocketException &e) {
+    } catch(const P2PSocketException &e) {
         std::cout << e.what() << std::endl;
     }
 
     sock->events()->onPeerConnect()->listen([](auto &&){ std::cout << "A new peer connected"<< std::endl; });
+    sock->events()->onPeerDisconnect()->listen([](auto &&){ std::cout << "A peer disconnected"<< std::endl; });
 
     int total = knownPorts.size();
     int connected = 0;
-    signal (SIGPIPE, SIG_IGN);
+    struct sigaction action;
+    action.sa_handler = SIG_IGN;
+    sigaction(SIGPIPE, &action, 0);
+//    signal (SIGPIPE, SIG_IGN);
     while (true) {
-        sock->listen();
-        std::cout << "sock->listening\n";
+        try {
+            sock->listen();
+            std::cout << "sock->listening\n";
+        } catch (const P2PSocketException &e) {
+            std::cout << e.what() << std::endl;
+        }
         sleep(4);
         for (auto port : knownPorts) {
             if (connected < total) {
@@ -43,15 +52,22 @@ int main(int argc, char *argv[])
         sleep(2);
 
         if (connected > 0) {
-            int bytes = sock->peers()->broadcast("Broadcasting...\r\n");
-            std::cout << "Sent: " << bytes << " msgs\n";
+            try {
+                int bytes = sock->peers()->broadcast("Broadcasting...\r\n");
+                std::cout << "Sent: " << bytes << " msgs\n";
+            } catch (const PeerException &e) {\
+                std::cout << e.what();
+            }
         }
 
         sleep(2);
-
-        auto msgs = sock->peers()->read().all();
-        for (const auto &msg : msgs) {
-            std::cout << "Message: " << msg.message() << "\n";
+        try {
+            auto msgs = sock->peers()->read().all();
+            for (const auto &msg : msgs) {
+                std::cout << "Recieved message: " << msg.message() << "\n";
+            }
+        } catch (const PeerException &e) {
+            std::cout << e.what();
         }
         std::cout << "iteration " << connected << "\n";
     }
