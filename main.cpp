@@ -26,23 +26,25 @@ int main(int argc, char *argv[])
     int connected = 0;
     signal (SIGPIPE, SIG_IGN);
     while (true) {
-        std::cout << "itera\n";
         sock->listen();
-        std::cout << "sock->listen() done\n";
+        std::cout << "sock->listening\n";
         sleep(4);
         for (auto port : knownPorts) {
             if (connected < total) {
-                sock->connect("127.0.0.1", port);
+                try {
+                    sock->connect("127.0.0.1", port);
+                } catch(const P2PSocketException &e) {
+                    std::cout << e.what();
+                }
                 ++connected;
-                std::cout << "connected: " << connected << "\n";
             }
         }
 
         sleep(2);
 
         if (connected > 0) {
-            int bytes = sock->peers()->broadcast("Broadcasting...");
-            std::cout << "Sent: " << bytes << " bytes\n";
+            int bytes = sock->peers()->broadcast("Broadcasting...\r\n");
+            std::cout << "Sent: " << bytes << " msgs\n";
         }
 
         sleep(2);

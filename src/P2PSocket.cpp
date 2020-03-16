@@ -4,6 +4,7 @@
 #include <iostream>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <cstring>
 
 
 P2PSocket::P2PSocket(const std::string& ip, int port, int maxPeers, bool debug)
@@ -22,25 +23,23 @@ P2PSocket::P2PSocket(const std::string& ip, int port, int maxPeers, bool debug)
     //save socket resource
     m_socket = SocketResource::create();
     if (m_socket.resource() == -1) {
-        throw P2PSocketException("Failed to create socket\n");
+        throw P2PSocketException(std::string{"Failed to create socket\n"} + std::strerror(errno));
     }
 
     //validate ip
     struct sockaddr_in address;
     address.sin_family = AF_INET;
     if (::inet_pton(AF_INET, ip.c_str(), &address.sin_addr) <= 0) {
-        throw P2PSocketException("Invalid IPv4 host address\n");
+        throw P2PSocketException(std::string{"Invalid IPv4 host address\n"} + std::strerror(errno));
     }
     address.sin_port = htons(port); 
 
     if (::bind(m_socket.resource(), (struct sockaddr*)&address, sizeof(address)) == -1) {
-        perror("Bind failed");
-        throw P2PSocketException("Failed to bind\n");
+        throw P2PSocketException(std::string{"Failed to bind\n"} + std::strerror(errno));
     }
 
     if (::listen(m_socket.resource(), m_maxPeers) < 0) {
-        perror("listen failure");
-        throw P2PSocketException("Failed to start listener");
+        throw P2PSocketException(std::string{"Failed to start listener"} + std::strerror(errno));
     }
 
     m_peers = Peers(this);
@@ -59,7 +58,11 @@ Events *P2PSocket::events()
 
 void P2PSocket::connect(const std::string& remotePeerAddress, int port)
 {
-    this->m_peers.connect(remotePeerAddress, port);
+    if (!this->m_peers.connect(remotePeerAddress, port)) {
+        throw P2PSocketException(
+                    std::string{"Failed to connect to: " + remotePeerAddress + " "
+                                + std::to_string(port) + " "}+ std::strerror(errno));
+    }
 }
 
 void P2PSocket::listen()
