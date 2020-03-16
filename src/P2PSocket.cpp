@@ -27,7 +27,8 @@ P2PSocket::P2PSocket(const std::string& ip, int port, int maxPeers, bool debug)
     }
 
     //validate ip
-    struct sockaddr_in address;
+    sockaddr_in address;
+    std::memset(&address, 0, sizeof address);
     address.sin_family = AF_INET;
     if (::inet_pton(AF_INET, ip.c_str(), &address.sin_addr) <= 0) {
         throw P2PSocketException(std::string{"Invalid IPv4 host address\n"} + std::strerror(errno));

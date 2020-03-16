@@ -66,7 +66,8 @@ std::string Peer::read(int length)
     int recv = ::recv(m_socket.resource(), buf, length, MSG_DONTWAIT);
     if (recv == -1) {
         throw PeerException(std::string{"Failed to read peer "} + m_name + " " + std::strerror(errno) + "\n");
-     } else if (recv == 0) {
+     }
+    if (recv == 0) {
         //Connection is no longer valid, remote has been disconnected
         m_connected = false;
         this->m_master->peers()->remove(this);
