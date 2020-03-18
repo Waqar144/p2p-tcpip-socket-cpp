@@ -10,10 +10,6 @@
 #include <string>
 #include <algorithm>
 
-#ifndef _WIN32
-    #include <arpa/inet.h>
-#endif
-
 Peers::Peers(P2PSocket* p2pSocket)
     : m_p2pSocket(p2pSocket),
       m_count(0)
