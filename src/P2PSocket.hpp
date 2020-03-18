@@ -8,15 +8,15 @@
 class P2PSocket {
 
 public:
-    P2PSocket(const std::string& ip, int port, int maxPeers, bool debug = false);
+    P2PSocket(int maxPeers, bool debug = false);
     ~P2PSocket();
     Events *events();
+    void createServer(const std::string &ip, uint16_t port);
     void connect(const std::string& remotePeerAddress, int port);
     void listen();
     SocketResource socket() const;
     int maxPeers() const;
-    bool m_debug;
-
+    bool m_debug;    
     Peers *peers();
 
 private:
