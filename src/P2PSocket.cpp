@@ -1,7 +1,6 @@
 #include "P2PSocket.hpp"
 #include "exceptions/P2PSocketException.hpp"
 
-#include <arpa/inet.h>
 #include <cstring>
 #include <iostream>
 #include <unistd.h>

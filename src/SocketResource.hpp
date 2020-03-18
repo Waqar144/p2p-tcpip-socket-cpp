@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define N0_ERROR 0
 #define INVALID_SOCKET -1
