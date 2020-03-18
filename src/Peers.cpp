@@ -126,18 +126,15 @@ int Peers::broadcast(const std::string &message, std::function<void(std::shared_
 {
     int sent = 0;
     for (const auto &[_, peer] : m_peers) {
-        if (peer->send(message) == -1) {
-            try {
-                peer->send(message);
-                ++sent;
-            } catch(const PeerException &e){
-                std::cout << e.what();
-                if (callback != nullptr) {
-                    callback(peer);
-                    continue;
-                }
-                throw e;
+        try {
+            peer->send(message);
+            ++sent;
+        } catch(const PeerException &e){
+            if (callback != nullptr) {
+                callback(peer);
+                continue;
             }
+            throw e;
         }
     }
     return sent;
