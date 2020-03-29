@@ -32,43 +32,43 @@ int main(int argc, char *argv[])
     while (true) {
         try {
             sock->listen();
-            std::cout << "sock->listening\n";
+            std::cout << "listening\n";
         } catch (const P2PSocketException &e) {
-            std::cout << e.what() << std::endl;
+            // std::cout << e.what() << std::endl;
         }
-        sleep(4);
+
         for (auto port : knownPorts) {
             if (connected < total) {
                 try {
                     sock->connect("127.0.0.1", port);
-                } catch(const P2PSocketException &e) {
+                } catch (const P2PSocketException &e) {
                     std::cout << e.what();
                 }
                 ++connected;
             }
         }
 
-        sleep(2);
+        auto peersCount = sock->peers()->count();
 
-        if (connected > 0) {
+        if (peersCount > 0) {
             try {
-                int bytes = sock->peers()->broadcast("Broadcasting...\r\n");
+                int bytes = sock->peers()->broadcast("Broadcasting...");
                 std::cout << "Sent: " << bytes << " msgs\n";
-            } catch (const PeerException &e) {\
-                std::cout << e.what();
+            } catch (...) {
+            }
+            try {
+                auto msgs = sock->peers()->read().all();
+                for (const auto &msg : msgs) {
+                    std::cout << "Recieved message: " << msg.message() << " from "
+                              << msg.peer()->port() << "\n";
+                }
+            } catch (const PeerException &e) {
+                std::cout << "No messages\n";
             }
         }
 
+        std::cout << "Sleeping..." << connected << "\n";
         sleep(2);
-        try {
-            auto msgs = sock->peers()->read().all();
-            for (const auto &msg : msgs) {
-                std::cout << "Recieved message: " << msg.message() << "\n";
-            }
-        } catch (const PeerException &e) {
-            std::cout << e.what();
-        }
-        std::cout << "iteration " << connected << "\n";
     }
 
     std::cout << "Done, exiting...\n";
