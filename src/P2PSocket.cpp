@@ -5,7 +5,6 @@
 #include <iostream>
 #include <unistd.h>
 
-
 P2PSocket::P2PSocket(int maxPeers, bool debug) : m_debug(debug), m_maxPeers(maxPeers)
 {
     if (maxPeers < 0x01 || maxPeers > 0xFF) {
@@ -17,16 +16,16 @@ P2PSocket::P2PSocket(int maxPeers, bool debug) : m_debug(debug), m_maxPeers(maxP
 
 P2PSocket::~P2PSocket()
 {
-    SocketResource::close(m_socket.resource());
+    m_socket.close();
     SocketResource::cleanUp();
 }
 
-Events* P2PSocket::events()
+Events *P2PSocket::events()
 {
     return &m_events;
 }
 
-void P2PSocket::createServer(const std::string& ip, uint16_t port)
+void P2PSocket::createServer(const std::string &ip, uint16_t port)
 {
     if (m_socket.resource() != -1) {
         throw P2PSocketException("Socket server was already created\n");
@@ -52,12 +51,21 @@ void P2PSocket::createServer(const std::string& ip, uint16_t port)
     if (ip == "") {
         address.sin_addr.s_addr = INADDR_ANY;
     } else {
+#ifdef _WIN32
+        auto addr = ::inet_addr(ip.c_str());
+        if (addr == INADDR_NONE)
+            throw P2PSocketException("inet_addr failure: returned INADDR_NONE");
+        if (addr == INADDR_ANY)
+            throw P2PSocketException("inet_addr failure: returned INADDR_ANY");
+        address.sin_addr.s_addr = addr;
+#else
         if (::inet_pton(AF_INET, ip.c_str(), &address.sin_addr) <= 0)
-            throw P2PSocketException(
-                std::string{"Invalid IPv4 host address\n"} + std::strerror(errno));
+            throw P2PSocketException(std::string{"Invalid IPv4 host address\n"} +
+                                     std::strerror(errno));
+#endif
     }
 
-    if (::bind(m_socket.resource(), (struct sockaddr*)&address, sizeof(address)) == -1) {
+    if (::bind(m_socket.resource(), (struct sockaddr *)&address, sizeof(address)) == -1) {
         throw P2PSocketException(std::string{"Failed to bind\n"} + std::strerror(errno));
     }
 
@@ -66,20 +74,19 @@ void P2PSocket::createServer(const std::string& ip, uint16_t port)
     }
 }
 
-void P2PSocket::connect(const std::string& remotePeerAddress, int port)
+void P2PSocket::connect(const std::string &remotePeerAddress, int port)
 {
     if (!this->m_peers.connect(remotePeerAddress, port)) {
-        throw P2PSocketException(
-            std::string{"Failed to connect to: " + remotePeerAddress + " " + std::to_string(port) +
-                        " "} +
-            std::strerror(errno));
+        throw P2PSocketException(std::string{"Failed to connect to: " + remotePeerAddress + " " +
+                                             std::to_string(port) + " "} +
+                                 std::strerror(errno));
     }
 }
 
-void P2PSocket::listen()
+void P2PSocket::listen(int queue)
 {
     m_socket.setNonBlockingMode();
-    int remain = m_maxPeers - m_peers.count();
+    int remain = queue > 0 ? queue : m_maxPeers - m_peers.count();
     if (remain > 0) {
         for (int i = 0; i <= remain; ++i) {
             if (!m_peers.accept())
@@ -99,7 +106,7 @@ int P2PSocket::maxPeers() const
     return m_maxPeers;
 }
 
-Peers* P2PSocket::peers()
+Peers *P2PSocket::peers()
 {
     return &m_peers;
 }
