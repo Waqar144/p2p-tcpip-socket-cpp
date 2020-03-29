@@ -1,12 +1,12 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include <vector>
-#include <string>
-#include <memory>
+#include "../Peer.hpp"
 #include <functional>
+#include <memory>
+#include <string>
+#include <vector>
 
-class Peer;
 class EventRegister;
 
 struct Callable {
