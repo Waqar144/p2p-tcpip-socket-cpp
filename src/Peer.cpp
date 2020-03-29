@@ -24,7 +24,7 @@ Peer::Peer(std::shared_ptr<P2PSocket> socket, SocketResource peer, int num) : m_
 
 Peer::~Peer()
 {
-    SocketResource::close(m_socket.resource());
+    m_socket.close();
 }
 
 std::string Peer::name() const {
