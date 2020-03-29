@@ -1,11 +1,11 @@
 #include "Events.hpp"
 
-std::shared_ptr<Event> Events::onPeerConnect()
+const std::unique_ptr<Event> &Events::onPeerConnect()
 {
     return this->on("onPeerConnect");
 }
 
-std::shared_ptr<Event> Events::onPeerDisconnect()
+const std::unique_ptr<Event> &Events::onPeerDisconnect()
 {
     return this->on("onPeerDisconnect");
 }

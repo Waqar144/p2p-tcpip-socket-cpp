@@ -7,8 +7,8 @@ class Events : public EventRegister
 {
 public:
     Events() = default;
-    std::shared_ptr<Event> onPeerConnect();
-    std::shared_ptr<Event> onPeerDisconnect();
+    const std::unique_ptr<Event> &onPeerConnect();
+    const std::unique_ptr<Event> &onPeerDisconnect();
 };
 
 #endif // EVENTS_HPP

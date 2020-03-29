@@ -10,14 +10,14 @@ class Event;
 
 class EventRegister
 {
-public:
+  public:
     EventRegister() = default;
-    std::shared_ptr<Event> on(std::string event);
+    const std::unique_ptr<Event> &on(std::string event);
     bool has(std::string event);
-    void clear(const std::shared_ptr<Event>& event);
+    void clear(const std::unique_ptr<Event> &event);
 
-private:
-    std::map<std::string, std::shared_ptr<Event>> m_events;
+  private:
+    std::map<std::string, std::unique_ptr<Event>> m_events;
 };
 
 #endif // EVENTREGISTER_H

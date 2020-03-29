@@ -13,7 +13,7 @@ std::string Event::name() const
     return m_name;
 }
 
-std::shared_ptr<EventRegister> Event::eventRegister()
+EventRegister *Event::eventRegister()
 {
     return m_eventRegister;
 }

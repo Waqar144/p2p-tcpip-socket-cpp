@@ -6,16 +6,16 @@ void toLower(std::string &str)
                    [](unsigned char c){ return std::tolower(c); });
 }
 
-std::shared_ptr<Event> EventRegister::on(std::string event)
+const std::unique_ptr<Event> &EventRegister::on(std::string event)
 {
     toLower(event);
     if (m_events.find(event) != m_events.end()) {
         return m_events[event];
     }
 
-    std::shared_ptr<Event> ev = std::make_shared<Event>(this, event);
-    m_events[event] = ev;
-    return ev;
+    std::unique_ptr<Event> ev = std::make_unique<Event>(this, event);
+    m_events[event] = std::move(ev);
+    return m_events[event];
 }
 
 bool EventRegister::has(std::string event)
@@ -24,7 +24,7 @@ bool EventRegister::has(std::string event)
     return m_events.find(event) != m_events.end();
 }
 
-void EventRegister::clear(const std::shared_ptr<Event>& event)
+void EventRegister::clear(const std::unique_ptr<Event> &event)
 {
     auto it = m_events.begin();
     while (it != m_events.end()) {

@@ -24,11 +24,15 @@ int main(int argc, char *argv[])
         std::cout << e.what() << std::endl;
     }
 
-    sock->events()->onPeerConnect()->listen([](auto &&){ std::cout << "A new peer connected"<< std::endl; });
+    sock->events()->onPeerConnect()->listen(
+        [](auto &&) { std::cout << "A new peer connected" << std::endl; });
+    sock->events()->onPeerDisconnect()->listen(
+        [](auto &&) { std::cout << "A peer disconnected" << std::endl; });
 
     int total = knownPorts.size();
     int connected = 0;
-    signal (SIGPIPE, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
+
     while (true) {
         try {
             sock->listen();
