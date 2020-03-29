@@ -36,7 +36,7 @@ void P2PSocket::createServer(const std::string &ip, uint16_t port)
         throw P2PSocketException("Invalid port\n");
     }
 
-    sockaddr_in address;
+    sockaddr_in address{};
     std::memset(&address, 0, sizeof address);
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
@@ -48,7 +48,7 @@ void P2PSocket::createServer(const std::string &ip, uint16_t port)
     }
 
     // validate ip
-    if (ip == "") {
+    if (ip.empty()) {
         address.sin_addr.s_addr = INADDR_ANY;
     } else {
 #ifdef _WIN32

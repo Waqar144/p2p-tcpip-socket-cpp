@@ -20,12 +20,12 @@ std::shared_ptr<EventRegister> Event::eventRegister()
 
 Event Event::listen(std::function<void(Peer *)> func)
 {
-    m_listeners.emplace_back(Callable(func));
+    m_listeners.emplace_back(Callable(std::move(func)));
     return *this;
 }
 
 Event Event::listen(std::function<void()> func)
 {
-    m_listeners.emplace_back(Callable(func));
+    m_listeners.emplace_back(Callable(std::move(func)));
     return *this;
 }
