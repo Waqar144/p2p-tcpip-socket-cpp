@@ -28,11 +28,10 @@ public:
     Event(EventRegister *_register, std::string name);
     std::string name() const;
     std::shared_ptr<EventRegister> eventRegister();
-    Event listen(const std::function<void(Peer*)>& func);
-    Event listen(const std::function<void()>& func);
+    Event listen(std::function<void(Peer *)> func);
+    Event listen(std::function<void()> func);
 
-    template <typename ...Args>
-    int trigger(Args ...args)
+    template <typename... Args> int trigger(Args... args)
     {
         if (m_listeners.empty())
             return 0;
@@ -49,7 +48,6 @@ private:
     std::shared_ptr<EventRegister> m_eventRegister;
     std::string m_name;
     std::vector<Callable> m_listeners;
-//    std::vector<std::function<void(std::shared_ptr<Peer>)> > m_listeners;
 };
 
 #endif // EVENT_H

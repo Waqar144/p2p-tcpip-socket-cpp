@@ -18,13 +18,13 @@ std::shared_ptr<EventRegister> Event::eventRegister()
     return m_eventRegister;
 }
 
-Event Event::listen(const std::function<void(Peer*)>& func)
+Event Event::listen(std::function<void(Peer *)> func)
 {
     m_listeners.emplace_back(Callable(func));
     return *this;
 }
 
-Event Event::listen(const std::function<void ()> &func)
+Event Event::listen(std::function<void()> func)
 {
     m_listeners.emplace_back(Callable(func));
     return *this;
