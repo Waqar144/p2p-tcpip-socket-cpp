@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
     std::unique_ptr<P2PSocket> sock = nullptr;
 
     try {
-        sock = std::make_unique<P2PSocket>("127.0.0.1", 8890, 2);
+        sock = std::make_unique<P2PSocket>(2);
+        sock->createServer("127.0.0.1", 8890);
     } catch(const P2PSocketException &e) {
         std::cout << e.what() << std::endl;
     }

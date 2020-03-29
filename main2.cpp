@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
     P2PSocket *sock;
 
     try {
-        sock = new P2PSocket("127.0.0.1", 6758, 2);
+        sock = new P2PSocket(2);
+        sock->createServer("127.0.0.1", 6758);
     } catch(P2PSocketException &e) {
         std::cout << e.what() << std::endl;
     }
